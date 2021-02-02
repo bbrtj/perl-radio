@@ -1,0 +1,16 @@
+use Ubic::Service::SimpleDaemon;
+
+my $user = 'user';
+my $password = 'hackme';
+
+Ubic::Service::SimpleDaemon->new(
+	bin => "/home/$user/radio/radio.pl",
+	ubic_log => "/home/$user/radio/log/ubic.log",
+	stdout => "/home/$user/radio/log/server.log",
+	stderr => "/home/$user/radio/log/error.log",
+	user => $user,
+	env => {
+		PATH => '/home/$user/perl5/perlbrew/perls/perl-5.32.0/bin/:/usr/local/bin/',
+		ICECAST_PASSWORD = $password,
+	},
+);
