@@ -8,12 +8,21 @@ use Path::Tiny;
 
 my $current = path(__FILE__)->dirname;
 my $silence_file = "$current/silence.wav";
+
+## CONFIG
+
+# genres: directory name => weight
 my %genres = (
 	pop => 50,
 	lofi => 5,
 	rap => 2,
 	misc => 0.1,
 );
+
+# silence - amount of time to broadcast silence
+my $silence_duration = 60;
+
+## END CONFIG
 
 sub generate_silence
 {
@@ -37,7 +46,6 @@ sub open_icecast
 	open my $out_fh, '|-', $out_command;
 	return $out_fh;
 }
-
 
 sub get_next_file
 {
@@ -91,7 +99,7 @@ sub get_new_source
 	return $source;
 }
 
-generate_silence 60;
+generate_silence $silence_duration;
 my $icecast = open_icecast;
 
 my $streamer = Audio::StreamGenerator->new(
