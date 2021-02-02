@@ -30,7 +30,7 @@ sub open_icecast
 
 	my $icecast = "icecast://source:${password}\@localhost:${port}/${name}";
 	my $out_command = qq{
-			ffmpeg -re -f s16le -acodec pcm_s16le -ac 2 -ar 44100 -i -  \
+			ffmpeg -re -f s16le -acodec pcm_s16le -ac 2 -ar 44100 -i -  \\
 			-acodec libmp3lame -ac 2 -b:a 192k -content_type audio/mpeg $icecast
 	};
 
@@ -47,13 +47,13 @@ sub get_next_file
 		my @arr;
 		for my $genre (keys %genres) {
 			my $pos = superpos(glob "$current/radio/$genre/*.mp3");
-			push @arr, [$genres{genre}, $pos];
+			push @arr, [$genres{$genre}, $pos];
 		}
 		superpos(\@arr);
 	};
 
 	my $choice;
-	-skip while (($choice = $pos->reset->collapse) eq superpos(@$last));
+	while (($choice = $pos->reset->collapse) eq superpos(@$last)) {}
 	push @$last, $choice;
 	shift @$last while @$last > 10;
 
@@ -68,7 +68,7 @@ sub get_new_source
 	my $fullpath;
 	if (!$silence) {
 		$fullpath = get_next_file;
-		say (scalar localtime) . ": playing $fullpath";
+		say ((scalar localtime) . ": playing $fullpath");
 		$silence = $silence_pos->reset->collapse;
 	}
 	else {

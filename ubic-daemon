@@ -10,7 +10,7 @@ Ubic::Service::SimpleDaemon->new(
 	stderr => "/home/$user/radio/log/error.log",
 	user => $user,
 	env => {
-		PATH => '/home/$user/perl5/perlbrew/perls/perl-5.32.0/bin/:/usr/local/bin/',
-		ICECAST_PASSWORD = $password,
+		PATH => "/home/$user/perl5/perlbrew/perls/perl-5.32.0/bin/:/usr/local/bin/",
+		ICECAST_PASSWORD => $password,
 	},
 );
