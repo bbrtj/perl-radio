@@ -3,7 +3,7 @@
 use v5.30;
 use warnings;
 use Audio::StreamGenerator;
-use Quantum::Superpositions::Lazy;
+use Q::S::L qw(superpos fetch_matches);
 use Path::Tiny;
 
 my $current = path(__FILE__)->dirname;
@@ -39,17 +39,24 @@ sub get_next_file
 
 	my $pos = do {
 		my @arr;
+		my $last_files = superpos($last->@*);
 		for my $genre (keys $config->{genres}->%*) {
-			my $pos = superpos(glob "$current/radio/$genre/*.mp3");
+			my @all_files = glob "$current/radio/$genre/*.mp3";
+			my @files = grep { !($_ eq $last_files) } @all_files;
+
+			my $pos = superpos(@files);
+			if (!@files) {
+				$pos = superpos(@all_files);
+				$last = [grep { !($_ eq $pos) } $last->@*];
+			}
+
 			push @arr, [$config->{genres}{$genre}, $pos];
 		}
 		superpos(\@arr);
 	};
 
-	my $choice;
-	while (($choice = $pos->reset->collapse) eq superpos(@$last)) {}
+	my $choice = $pos->collapse;
 	push @$last, $choice;
-	shift @$last while @$last > 10;
 
 	return $choice;
 }
