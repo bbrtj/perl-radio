@@ -8,21 +8,7 @@ use Path::Tiny;
 
 my $current = path(__FILE__)->dirname;
 my $silence_file = "$current/silence.wav";
-
-## CONFIG
-
-# genres: directory name => weight
-my %genres = (
-	pop => 50,
-	lofi => 5,
-	rap => 2,
-	misc => 0.1,
-);
-
-# silence - amount of time to broadcast silence
-my $silence_duration = 60;
-
-## END CONFIG
+my $config = require "config.pl";
 
 sub generate_silence
 {
@@ -53,9 +39,9 @@ sub get_next_file
 
 	my $pos = do {
 		my @arr;
-		for my $genre (keys %genres) {
+		for my $genre (keys $config->{genres}->%*) {
 			my $pos = superpos(glob "$current/radio/$genre/*.mp3");
-			push @arr, [$genres{$genre}, $pos];
+			push @arr, [$config->{genres}{$genre}, $pos];
 		}
 		superpos(\@arr);
 	};
@@ -99,7 +85,7 @@ sub get_new_source
 	return $source;
 }
 
-generate_silence $silence_duration;
+generate_silence $config->{silence_duration};
 my $icecast = open_icecast;
 
 my $streamer = Audio::StreamGenerator->new(
