@@ -12,7 +12,7 @@
 
 	# for A E S T H E T I C S
 	# genre => [chance, tones_down]
-	slowed_categories => {
+	slowed_genres => {
 		pop => [0.9, 3],
 		rap => [0.8, 3],
 		lofi => [0.3, 3],

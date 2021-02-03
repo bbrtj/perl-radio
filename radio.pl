@@ -71,13 +71,13 @@ sub get_new_source
 	}
 
 	my $set_rate = sub {
-		my $category = path($fullpath)->dirname;
+		my $category = path($fullpath)->parent->basename;
 		my $normal_rate = 44100;
-		my $conf = $config->{$category};
+		my $conf = $config->{slowed_genres}{$category};
 
 		if ($conf) {
 			my ($chance, $tones) = $conf->@*;
-			my $slowed_rate = $normal_rate * 2 ** (-1 * $tones / 12);
+			my $slowed_rate = int($normal_rate * 2 ** ($tones / 12));
 			return superpos([
 				[$chance, $slowed_rate],
 				[1 - $chance, $normal_rate],
@@ -86,7 +86,7 @@ sub get_new_source
 		else {
 			return superpos($normal_rate);
 		}
-	}
+	};
 
 	my @ffmpeg_cmd = (
 		'ffmpeg',
