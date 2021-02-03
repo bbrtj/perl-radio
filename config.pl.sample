@@ -1,11 +1,11 @@
 {
 	# genres: directory name => weight
-	genres => [
+	genres => {
 		pop => 50,
 		lofi => 10,
 		rap => 4,
 		misc => 0.1,
-	],
+	},
 
 	# silence - amount of time to broadcast silence
 	silence_duration => 60,
