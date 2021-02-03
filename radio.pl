@@ -70,6 +70,24 @@ sub get_new_source
 		$silence = 0;
 	}
 
+	my $set_rate = sub {
+		my $category = path($fullpath)->dirname;
+		my $normal_rate = 44100;
+		my $conf = $config->{$category};
+
+		if ($conf) {
+			my ($chance, $tones) = $conf->@*;
+			my $slowed_rate = $normal_rate * 2 ** (-1 * $tones / 12);
+			return superpos([
+				[$chance, $slowed_rate],
+				[1 - $chance, $normal_rate],
+			]);
+		}
+		else {
+			return superpos($normal_rate);
+		}
+	}
+
 	my @ffmpeg_cmd = (
 		'ffmpeg',
 		'-i',
@@ -78,9 +96,10 @@ sub get_new_source
 		'-f', 's16le',
 		'-acodec', 'pcm_s16le',
 		'-ac', '2',
-		'-ar', '44100',
+		'-ar', $set_rate->()->collapse,
 		'-'
 	);
+
 	open my $source, '-|', @ffmpeg_cmd;
 	return $source;
 }

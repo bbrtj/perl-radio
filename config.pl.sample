@@ -2,11 +2,20 @@
 	# genres: directory name => weight
 	genres => [
 		pop => 50,
-		lofi => 5,
-		rap => 2,
+		lofi => 10,
+		rap => 4,
 		misc => 0.1,
 	],
 
 	# silence - amount of time to broadcast silence
 	silence_duration => 60,
+
+	# for A E S T H E T I C S
+	# genre => [chance, tones_down]
+	slowed_categories => {
+		pop => [0.9, 3],
+		rap => [0.8, 3],
+		lofi => [0.3, 3],
+		misc => [0.3, 3],
+	},
 }
