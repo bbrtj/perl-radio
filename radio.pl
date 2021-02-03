@@ -8,7 +8,7 @@ use Path::Tiny;
 
 my $current = path(__FILE__)->dirname;
 my $silence_file = "$current/silence.wav";
-my $config = require "config.pl";
+my $config = require "$current/config.pl";
 
 sub generate_silence
 {
