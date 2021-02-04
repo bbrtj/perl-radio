@@ -42,12 +42,13 @@ sub get_next_file
 		my $last_files = superpos($last->@*);
 		for my $genre (keys $config->{genres}->%*) {
 			my @all_files = glob "$current/radio/$genre/*.mp3";
-			my @files = grep { !($_ eq $last_files) } @all_files;
 
+			my $pos = superpos(@all_files);
+			$pos = fetch_matches { every_state { $pos ne $last_files } };
 			my $pos = superpos(@files);
 			if (!@files) {
 				$pos = superpos(@all_files);
-				$last = [grep { !($_ eq $pos) } $last->@*];
+				$last = [grep { every_state { $_ ne $pos } } $last->@*];
 			}
 
 			push @arr, [$config->{genres}{$genre}, $pos];
