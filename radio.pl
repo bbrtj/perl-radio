@@ -65,7 +65,7 @@ sub get_next_file
 sub get_new_source
 {
 	state $silence = 0;
-	state $silence_pos = superpos([[2, 1], [3, 0]]);
+	state $silence_pos = superpos([[$config->{silence_chance}, 1], [1 - $config->{silence_chance}, 0]]);
 
 	my $fullpath;
 	if (!$silence) {

@@ -9,6 +9,7 @@
 
 	# silence - amount of time to broadcast silence
 	silence_duration => 60,
+	silence_chance => 0.5,
 
 	# for A E S T H E T I C S
 	# genre => [chance, tones_down]
