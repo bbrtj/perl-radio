@@ -3,7 +3,7 @@
 use v5.30;
 use warnings;
 use Audio::StreamGenerator;
-use Q::S::L qw(superpos fetch_matches);
+use Q::S::L qw(superpos fetch_matches every_state);
 use Path::Tiny;
 
 my $current = path(__FILE__)->dirname;
