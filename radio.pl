@@ -14,7 +14,7 @@ sub generate_silence
 {
 	my $silence_duration = shift;
 	unlink $silence_file if -f $silence_file;
-	`ffmpeg -f lavfi -i anullsrc=channel_layout=stereo -t $silence_duration $silence_file`;
+	`ffmpeg -f lavfi -i anullsrc=channel_layout=mono -t $silence_duration $silence_file`;
 }
 
 sub open_icecast
