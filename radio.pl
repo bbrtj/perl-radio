@@ -45,8 +45,8 @@ sub get_next_file
 
 			my $pos = superpos(@all_files);
 			$pos = fetch_matches { every_state { $pos ne $last_files } };
-			my $pos = superpos(@files);
-			if (!@files) {
+
+			if (!$pos->states->@*) {
 				$pos = superpos(@all_files);
 				$last = [grep { every_state { $_ ne $pos } } $last->@*];
 			}
