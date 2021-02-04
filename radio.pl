@@ -3,7 +3,7 @@
 use v5.30;
 use warnings;
 use Audio::StreamGenerator;
-use Quantum::Superpositions::Lazy;
+use Q::S::L qw(superpos fetch_matches every_state);
 use Path::Tiny;
 
 my $current = path(__FILE__)->dirname;
@@ -14,7 +14,7 @@ sub generate_silence
 {
 	my $silence_duration = shift;
 	unlink $silence_file if -f $silence_file;
-	`ffmpeg -f lavfi -i anullsrc=channel_layout=stereo -t $silence_duration $silence_file`;
+	`ffmpeg -f lavfi -i anullsrc=channel_layout=mono -t $silence_duration $silence_file`;
 }
 
 sub open_icecast
@@ -39,17 +39,25 @@ sub get_next_file
 
 	my $pos = do {
 		my @arr;
+		my $last_files = superpos($last->@*);
 		for my $genre (keys $config->{genres}->%*) {
-			my $pos = superpos(glob "$current/radio/$genre/*.mp3");
+			my @all_files = glob "$current/radio/$genre/*.mp3";
+
+			my $pos = superpos(@all_files);
+			$pos = fetch_matches { every_state { $pos ne $last_files } };
+			my $pos = superpos(@files);
+			if (!@files) {
+				$pos = superpos(@all_files);
+				$last = [grep { every_state { $_ ne $pos } } $last->@*];
+			}
+
 			push @arr, [$config->{genres}{$genre}, $pos];
 		}
 		superpos(\@arr);
 	};
 
-	my $choice;
-	while (($choice = $pos->reset->collapse) eq superpos(@$last)) {}
+	my $choice = $pos->collapse;
 	push @$last, $choice;
-	shift @$last while @$last > 10;
 
 	return $choice;
 }
@@ -57,7 +65,7 @@ sub get_next_file
 sub get_new_source
 {
 	state $silence = 0;
-	state $silence_pos = superpos([[2, 1], [3, 0]]);
+	state $silence_pos = superpos([[$config->{silence_chance}, 1], [1 - $config->{silence_chance}, 0]]);
 
 	my $fullpath;
 	if (!$silence) {
@@ -70,6 +78,24 @@ sub get_new_source
 		$silence = 0;
 	}
 
+	my $set_rate = sub {
+		my $category = path($fullpath)->parent->basename;
+		my $normal_rate = 44100;
+		my $conf = $config->{slowed_genres}{$category};
+
+		if ($conf) {
+			my ($chance, $tones) = $conf->@*;
+			my $slowed_rate = int($normal_rate * 2 ** ($tones / 12));
+			return superpos([
+				[$chance, $slowed_rate],
+				[1 - $chance, $normal_rate],
+			]);
+		}
+		else {
+			return superpos($normal_rate);
+		}
+	};
+
 	my @ffmpeg_cmd = (
 		'ffmpeg',
 		'-i',
@@ -78,9 +104,10 @@ sub get_new_source
 		'-f', 's16le',
 		'-acodec', 'pcm_s16le',
 		'-ac', '2',
-		'-ar', '44100',
+		'-ar', $set_rate->()->collapse,
 		'-'
 	);
+
 	open my $source, '-|', @ffmpeg_cmd;
 	return $source;
 }

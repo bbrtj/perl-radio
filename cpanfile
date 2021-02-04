@@ -1,4 +1,4 @@
-requires 'Quantum::Superpositions::Lazy';
+requires 'Quantum::Superpositions::Lazy', '1.07';
 requires 'Audio::StreamGenerator';
 requires 'Path::Tiny';
 requires 'Ubic';
