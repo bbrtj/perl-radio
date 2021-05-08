@@ -42,6 +42,7 @@ sub get_next_file
 		my $last_files = superpos($last->@*);
 		for my $genre (keys $config->{genres}->%*) {
 			my @all_files = glob "$current/radio/$genre/*.mp3";
+			my $total = @all_files;
 
 			my $pos = superpos(@all_files);
 			$pos = fetch_matches { every_state { $pos ne $last_files } };
@@ -51,7 +52,7 @@ sub get_next_file
 				$last = [grep { every_state { $_ ne $pos } } $last->@*];
 			}
 
-			push @arr, [$config->{genres}{$genre}, $pos];
+			push @arr, [$config->{genres}{$genre} * $total, $pos];
 		}
 		superpos(\@arr);
 	};
