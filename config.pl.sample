@@ -7,6 +7,8 @@
 		misc => 0.1,
 	},
 
+	control_filename => 'control.json',
+
 	# silence - amount of time to broadcast silence
 	silence_duration => 60,
 	silence_chance => 0.5,

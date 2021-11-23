@@ -5,10 +5,22 @@ use warnings;
 use Audio::StreamGenerator;
 use Q::S::L qw(superpos fetch_matches every_state);
 use Path::Tiny;
+use JSON::MaybeXS;
 
 my $current = path(__FILE__)->dirname;
 my $silence_file = "$current/silence.wav";
 my $config = require "$current/config.pl";
+
+sub get_control_data
+{
+	my $filename = $config->{control_filename};
+
+	return {}
+		unless -f $filename;
+
+	my $data = path($filename)->slurp;
+	return decode_json($data);
+}
 
 sub generate_silence
 {
@@ -36,11 +48,15 @@ sub open_icecast
 sub get_next_file
 {
 	state $last = [];
+	my @genres = (get_control_data->{genres} // [keys $config->{genres}->%*])->@*;
 
 	my $pos = do {
 		my @arr;
 		my $last_files = superpos($last->@*);
-		for my $genre (keys $config->{genres}->%*) {
+		for my $genre (@genres) {
+			my $prob = $config->{genres}{$genre};
+			next unless defined $prob;
+
 			my @all_files = glob "$current/radio/$genre/*.mp3";
 			my $total = @all_files;
 
@@ -52,7 +68,7 @@ sub get_next_file
 				$last = [grep { every_state { $_ ne $pos } } $last->@*];
 			}
 
-			push @arr, [$config->{genres}{$genre} * $total, $pos];
+			push @arr, [$prob * $total, $pos];
 		}
 		superpos(\@arr);
 	};
