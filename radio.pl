@@ -47,8 +47,9 @@ sub open_icecast
 
 sub get_next_file
 {
+	my ($control) = @_;
 	state $last = [];
-	my @genres = (get_control_data->{genres} // [keys $config->{genres}->%*])->@*;
+	my @genres = ($control->{genres} // [keys $config->{genres}->%*])->@*;
 
 	my $pos = do {
 		my @arr;
@@ -81,12 +82,13 @@ sub get_next_file
 
 sub get_new_source
 {
+	my $control = get_control_data;
 	state $silence = 0;
 	state $silence_pos = superpos([[$config->{silence_chance}, 1], [1 - $config->{silence_chance}, 0]]);
 
 	my $fullpath;
-	if (!$silence) {
-		$fullpath = get_next_file;
+	if (!$silence || $control->{no_silence}) {
+		$fullpath = get_next_file $control;
 		say ((scalar localtime) . ": playing $fullpath");
 		$silence = $silence_pos->reset->collapse;
 	}
